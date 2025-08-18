@@ -7,8 +7,8 @@
 #include <iomanip> // For std::setprecision
 
 // Custom message
-#include "../global_to_polar_cpp/msg/polar_grid.hpp"
-#include "../f1tenth_planning_custom_msgs/msg/path_with_velocity.hpp"
+#include "global_to_polar_cpp/msg/polar_grid.hpp"
+#include "planning_custom_msgs/msg/path_with_velocity.hpp"
 
 class DataLoggerNode : public rclcpp::Node
 {
@@ -16,7 +16,7 @@ public:
     DataLoggerNode() : Node("data_logger_node"), scan_received_(false), grid_received_(false), path_received_(false)
     {
         // Declare and get parameter for the output CSV file path
-        output_csv_file_ = this->declare_parameter<std::string>("output_csv_file", "/home/subin/learning_code/src/global_to_polar_cpp/dataSet/datalog.csv");
+        output_csv_file_ = this->declare_parameter<std::string>("output_csv_file", "/home/yongwoo/sim_ws/src/global_to_polar_cpp/dataSet/datalog.csv");
 
         // Open the CSV file for writing
         csv_file_.open(output_csv_file_, std::ios::out | std::ios::trunc);
@@ -38,9 +38,9 @@ public:
             "/polar_grid", 10,
             std::bind(&DataLoggerNode::polarGridCallback, this, std::placeholders::_1));
 
-        path_point_array_sub_ = this->create_subscription<f1tenth_planning_custom_msgs::msg::PathWithVelocity>(
+        path_with_velocity_sub_ = this->create_subscription<planning_custom_msgs::msg::PathWithVelocity>(
             "/planned_path_with_velocity", 10,
-            std::bind(&DataLoggerNode::pathPointArrayCallback, this, std::placeholders::_1));
+            std::bind(&DataLoggerNode::pathWithVelocityCallback, this, std::placeholders::_1));
 
         RCLCPP_INFO(this->get_logger(), "Data Logger Node initialized. Logging to %s", output_csv_file_.c_str());
     }
@@ -94,11 +94,11 @@ private:
         grid_received_ = true;
     }
 
-    void pathPointArrayCallback(const planning_custom_msgs::msg::PathPointArray::SharedPtr msg)
+    void pathWithVelocityCallback(const planning_custom_msgs::msg::PathWithVelocity::SharedPtr msg)
     {
         last_path_ = msg;
         path_received_ = true;
-        RCLCPP_INFO(this->get_logger(), "Received PathPointArray with %zu points", msg->points.size());
+        RCLCPP_INFO(this->get_logger(), "Received PathWithVelocity with %zu points", msg->points.size());
     }
 
     void writeData()
@@ -148,12 +148,12 @@ private:
     // Subscribers
     rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
     rclcpp::Subscription<global_to_polar_cpp::msg::PolarGrid>::SharedPtr polar_grid_sub_;
-    rclcpp::Subscription<planning_custom_msgs::msg::PathPointArray>::SharedPtr path_point_array_sub_;
+    rclcpp::Subscription<planning_custom_msgs::msg::PathWithVelocity>::SharedPtr path_with_velocity_sub_;
 
     // Data storage
     sensor_msgs::msg::LaserScan::SharedPtr last_scan_;
     global_to_polar_cpp::msg::PolarGrid::SharedPtr last_grid_;
-    planning_custom_msgs::msg::PathPointArray::SharedPtr last_path_;
+    planning_custom_msgs::msg::PathWithVelocity::SharedPtr last_path_;
     bool scan_received_;
     bool grid_received_;
     bool path_received_;
