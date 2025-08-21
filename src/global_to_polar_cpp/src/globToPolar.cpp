@@ -24,7 +24,7 @@ public:
     GlobalToPolarNode() : Node("global_to_polar_node")
     {
         // 파라미터 선언 및 값 가져오기
-        std::string path_csv_file = this->declare_parameter<std::string>("path_csv_file", "/home/yongwoo/sim_ws/src/global_to_polar_cpp/line/slam_tool_box.csv");
+        std::string path_csv_file = this->declare_parameter<std::string>("path_csv_file", "/home/yongwoo/sim_ws/src/global_to_polar_cpp/line/new_map1.csv");
         lookahead_points_ = this->declare_parameter<int>("lookahead_points", 20);
         search_window_ = this->declare_parameter<int>("search_window", 10);
 
